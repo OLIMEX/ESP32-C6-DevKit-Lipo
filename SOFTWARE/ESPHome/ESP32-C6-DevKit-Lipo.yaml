@@ -1,0 +1,117 @@
+esphome:
+  name: esp32-c6-devkit-lipo
+  friendly_name: ESP32-C6-DevKit-Lipo
+
+esp32:
+  board: esp32-c6-devkitc-1
+  variant: esp32c6
+  framework:
+    type: arduino
+
+# ============================================================
+# LOGGING / CONTROL
+# ============================================================
+logger:
+api:
+ota:
+captive_portal:
+
+wifi:
+  ssid: "YOUR_SSID"
+  password: "YOUR_PASSWORD"
+  ap:
+    ssid: "ESP32-C6-DevKit-Lipo Fallback"
+    password: "12345678"
+
+# ============================================================
+# 🔴 USER LED — GPIO15
+# ============================================================
+output:
+  - platform: gpio
+    pin: GPIO15
+    id: user_led_output
+
+light:
+  - platform: binary
+    name: "ESP32-C6-DevKit-Lipo User LED"
+    output: user_led_output
+
+# ============================================================
+# 🔘 USER BUTTON — GPIO9
+# ============================================================
+binary_sensor:
+  - platform: gpio
+    name: "ESP32-C6-DevKit-Lipo User Button"
+    pin:
+      number: GPIO9
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    on_press:
+      - light.toggle: user_led_output
+
+# ============================================================
+# 🔌 UEXT I2C — GPIO7 SCL / GPIO6 SDA
+# ============================================================
+i2c:
+  sda: GPIO6
+  scl: GPIO7
+  scan: true
+
+# ============================================================
+# 🔌 UEXT SPI BUS
+# ============================================================
+spi:
+  clk_pin: GPIO0
+  mosi_pin: GPIO1
+  miso_pin: GPIO14
+
+# Chip Select pin available for devices:
+# GPIO8
+
+# ============================================================
+# 🔌 UEXT UART — GPIO5 TX / GPIO4 RX
+# ============================================================
+uart:
+  - id: uext_uart
+    tx_pin: GPIO5
+    rx_pin: GPIO4
+    baud_rate: 115200
+
+# ============================================================
+# 🔋 BATTERY VOLTAGE — GPIO3 (jumpers must be closed)
+# Divider: 470k / 470k → ×2 scaling
+# ============================================================
+sensor:
+  - platform: adc
+    pin: GPIO3
+    name: "ESP32-C6-DevKit-Lipo Battery Voltage"
+    attenuation: 11db
+    update_interval: 30s
+    filters:
+      - multiply: 2.0
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
+
+# ============================================================
+# 🔌 EXTERNAL POWER SENSE — GPIO2 (jumpers required)
+# ============================================================
+binary_sensor:
+  - platform: gpio
+    name: "ESP32-C6-DevKit-Lipo External Power"
+    pin:
+      number: GPIO2
+      mode: input
+
+# ============================================================
+# HARDWARE NOTES — ESP32-C6-DevKit-Lipo
+# ============================================================
+# CH340 USB-UART uses GPIO16 (TX) and GPIO17 (RX)
+# Avoid using these pins if programming over that port.
+#
+# GPIO0, GPIO8 are boot-related + SPI — keep stable at boot.
+# No PSRAM on ESP32-C6-MINI-1-N4.
+# ADC range is 0–3.3V only.
