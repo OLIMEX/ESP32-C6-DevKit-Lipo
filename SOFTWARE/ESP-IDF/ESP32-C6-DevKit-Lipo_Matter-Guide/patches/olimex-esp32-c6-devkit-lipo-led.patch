@@ -1,0 +1,32 @@
+diff --git a/device_hal/device/esp32c6_devkit_c/device.c b/device_hal/device/esp32c6_devkit_c/device.c
+--- a/device_hal/device/esp32c6_devkit_c/device.c
++++ b/device_hal/device/esp32c6_devkit_c/device.c
+@@ -16,7 +16,7 @@
+ #include <driver/gpio.h>
+ #include <led_driver.h>
+ 
+-#define LED_GPIO_PIN GPIO_NUM_8
++#define LED_GPIO_PIN GPIO_NUM_15
+ #define LED_CHANNEL 0 /* RMT_CHANNEL_0 */
+ #define BUTTON_GPIO_PIN GPIO_NUM_9
+ 
+@@ -25,6 +25,7 @@ led_driver_config_t led_driver_get_config()
+     led_driver_config_t config = {
+         .gpio = LED_GPIO_PIN,
+         .channel = LED_CHANNEL,
++        .output_invert = true,
+     };
+     return config;
+ }
+diff --git a/device_hal/device/esp32c6_devkit_c/esp_matter_device.cmake b/device_hal/device/esp32c6_devkit_c/esp_matter_device.cmake
+--- a/device_hal/device/esp32c6_devkit_c/esp_matter_device.cmake
++++ b/device_hal/device/esp32c6_devkit_c/esp_matter_device.cmake
+@@ -5,7 +5,7 @@ if (NOT ("${IDF_TARGET}" STREQUAL "esp32c6" ))
+ endif()
+ 
+ SET(device_type     esp32c6_devkit_c)
+-SET(led_type        ws2812)
++SET(led_type        gpio)
+ SET(button_type     iot)
+ 
+ SET(extra_components_dirs_append "$ENV{ESP_MATTER_DEVICE_PATH}/../../led_driver"
